@@ -1,20 +1,16 @@
 use anchor_lang::{prelude::*, solana_program::program::invoke_signed, system_program};
 use anchor_spl::{
-    metadata::{
-        create_metadata_accounts_v3, mpl_token_metadata::types::DataV2, CreateMetadataAccountsV3,
-        Metadata,
-    },
     token_2022::{
         initialize_mint2,
         spl_token_2022::{self, extension::ExtensionType, state::Mint},
         InitializeMint2, Token2022,
     },
-    token_2022_extensions::{self, token_metadata},
-    token_interface::{spl_token_metadata_interface::state::TokenMetadata, TokenInterface},
+    token_2022_extensions::{self},
+    token_interface::spl_token_metadata_interface::state::TokenMetadata,
 };
 
 use crate::{Config, CONFIG_SEED};
-// https://orange-nasty-woodpecker-487.mypinata.cloud/ipfs/QmPD5UHJXsuZUgh7Bx81CEbYHRE1gM1LrXwMrx7jkeEgRp
+const URI: &str = "https://raw.githubusercontent.com/HongThaiPham/summer-bootcamp-anchor-token2022-stake/main/app/assets/token-info.json";
 #[derive(Accounts)]
 pub struct Initialize<'info> {
     #[account(mut)]
@@ -53,13 +49,16 @@ impl<'info> Initialize<'info> {
                 .unwrap();
 
         let metadata = TokenMetadata {
-                update_authority: anchor_spl::token_interface::spl_pod::optional_keys::OptionalNonZeroPubkey(self.config.to_account_info().key()),
-                mint: self.mint.to_account_info().key(),
-                name: "Summer Bootcamp".to_string(),
-                symbol: "SBC".to_string(),
-                uri: "https://orange-nasty-woodpecker-487.mypinata.cloud/ipfs/QmRZek8nqjZim2xrjtVpoYckjeQ5Vr7UkdXEH3VHPe2aSn".to_string(),
-                additional_metadata: vec![],
-            };
+            update_authority:
+                anchor_spl::token_interface::spl_pod::optional_keys::OptionalNonZeroPubkey(
+                    self.config.to_account_info().key(),
+                ),
+            mint: self.mint.to_account_info().key(),
+            name: "Summer Bootcamp".to_string(),
+            symbol: "SBC".to_string(),
+            uri: URI.to_string(),
+            additional_metadata: vec![],
+        };
 
         let extension_extra_space = metadata.tlv_size_of().unwrap();
         let lamports = self.rent.minimum_balance(size + extension_extra_space);
@@ -101,20 +100,24 @@ impl<'info> Initialize<'info> {
             None,
         )?;
 
-        invoke_signed(&token_2022_extensions::spl_token_metadata_interface::instruction::initialize(
-            self.token_program.to_account_info().key,
-            self.mint.to_account_info().key,
-            self.config.to_account_info().key,
-            self.mint.to_account_info().key,
-            self.config.to_account_info().key,
-            "Summer Bootcamp".to_string(),
-            "SBC".to_string(),
-            "https://orange-nasty-woodpecker-487.mypinata.cloud/ipfs/QmRZek8nqjZim2xrjtVpoYckjeQ5Vr7UkdXEH3VHPe2aSn".to_string(),
-        ), &[
-            self.token_program.to_account_info(),
-            self.mint.to_account_info(),
-            self.config.to_account_info(),
-        ], signer_seeds)?;
+        invoke_signed(
+            &token_2022_extensions::spl_token_metadata_interface::instruction::initialize(
+                self.token_program.to_account_info().key,
+                self.mint.to_account_info().key,
+                self.config.to_account_info().key,
+                self.mint.to_account_info().key,
+                self.config.to_account_info().key,
+                "Summer Bootcamp".to_string(),
+                "SBC".to_string(),
+                URI.to_string(),
+            ),
+            &[
+                self.token_program.to_account_info(),
+                self.mint.to_account_info(),
+                self.config.to_account_info(),
+            ],
+            signer_seeds,
+        )?;
 
         Ok(())
     }
