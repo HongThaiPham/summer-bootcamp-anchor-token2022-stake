@@ -2,32 +2,69 @@ import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
 import { SummerBootcampAnchorSpltokenStake } from "../target/types/summer_bootcamp_anchor_spltoken_stake";
 
-import { TOKEN_2022_PROGRAM_ID } from '@solana/spl-token'
+import {
+  ASSOCIATED_TOKEN_PROGRAM_ID,
+  createMint,
+  getAssociatedTokenAddressSync,
+  TOKEN_2022_PROGRAM_ID,
+} from "@solana/spl-token";
 
-import tokenInfo from '../app/assets/token-info.json'
+import tokenInfo from "../app/assets/token-info.json";
 
 describe("summer-bootcamp-anchor-spltoken-stake", () => {
   // Configure the client to use the local cluster.
-  const provider = anchor.AnchorProvider.env()
+  const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
-  const program = anchor.workspace.SummerBootcampAnchorSpltokenStake as Program<SummerBootcampAnchorSpltokenStake>;
+  const program = anchor.workspace
+    .SummerBootcampAnchorSpltokenStake as Program<SummerBootcampAnchorSpltokenStake>;
 
-  const [config] = anchor.web3.PublicKey.findProgramAddressSync([Buffer.from("config")], program.programId);
-
-  it("Is initialized!", async () => {
+  const [config] = anchor.web3.PublicKey.findProgramAddressSync(
+    [Buffer.from("config")],
+    program.programId
+  );
+  const rewardMintKeypair = anchor.web3.Keypair.generate();
+  it("Is configured", async () => {
     // Add your test here.
-    const mintKeypair = anchor.web3.Keypair.generate();
+    const tx = await program.methods
+      .initialize()
+      .accountsPartial({
+        mint: rewardMintKeypair.publicKey,
+        signer: provider.publicKey,
+        config,
+        tokenProgram: TOKEN_2022_PROGRAM_ID,
+      })
+      .signers([rewardMintKeypair])
+      .rpc();
 
+    console.log("Your transaction signature", tx);
+  });
 
+  it("Should create a new pool", async () => {
+    const [pool] = anchor.web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("pool"), rewardMintKeypair.publicKey.toBuffer()],
+      program.programId
+    );
+    console.log("Pool", pool.toBase58());
+    const rewardAta = getAssociatedTokenAddressSync(
+      rewardMintKeypair.publicKey,
+      pool,
+      true,
+      TOKEN_2022_PROGRAM_ID
+    );
 
-    const tx = await program.methods.initialize().accountsPartial({
-      mint: mintKeypair.publicKey,
-      signer: provider.publicKey,
-      config,
-      tokenProgram: TOKEN_2022_PROGRAM_ID,
-    }).signers([mintKeypair]).rpc();
+    console.log("Reward Ata", rewardAta.toBase58());
 
+    const tx = await program.methods
+      .createPool(new anchor.BN(100000000))
+      .accounts({
+        signer: provider.publicKey,
+        rewardTokenProgram: TOKEN_2022_PROGRAM_ID,
+        stakeTokenProgram: TOKEN_2022_PROGRAM_ID,
+        rewardMint: rewardMintKeypair.publicKey,
+        stakeMint: rewardMintKeypair.publicKey,
+      })
+      .rpc();
     console.log("Your transaction signature", tx);
   });
 });

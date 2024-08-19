@@ -1,4 +1,4 @@
-use anchor_lang::{prelude::*, solana_program::program::invoke_signed, system_program};
+use anchor_lang::{prelude::*, system_program};
 use anchor_spl::{
     token_2022::{
         initialize_mint2,
@@ -6,7 +6,9 @@ use anchor_spl::{
         InitializeMint2, Token2022,
     },
     token_2022_extensions::{self},
-    token_interface::spl_token_metadata_interface::state::TokenMetadata,
+    token_interface::{
+        spl_token_metadata_interface::state::TokenMetadata, TokenMetadataInitialize,
+    },
 };
 
 use crate::{Config, CONFIG_SEED};
@@ -100,23 +102,21 @@ impl<'info> Initialize<'info> {
             None,
         )?;
 
-        invoke_signed(
-            &token_2022_extensions::spl_token_metadata_interface::instruction::initialize(
-                self.token_program.to_account_info().key,
-                self.mint.to_account_info().key,
-                self.config.to_account_info().key,
-                self.mint.to_account_info().key,
-                self.config.to_account_info().key,
-                "Summer Bootcamp".to_string(),
-                "SBC".to_string(),
-                URI.to_string(),
-            ),
-            &[
+        token_2022_extensions::token_metadata_initialize(
+            CpiContext::new_with_signer(
                 self.token_program.to_account_info(),
-                self.mint.to_account_info(),
-                self.config.to_account_info(),
-            ],
-            signer_seeds,
+                TokenMetadataInitialize {
+                    token_program_id: self.token_program.to_account_info(),
+                    mint: self.mint.to_account_info(),
+                    metadata: self.mint.to_account_info(),
+                    mint_authority: self.config.to_account_info(),
+                    update_authority: self.config.to_account_info(),
+                },
+                signer_seeds,
+            ),
+            "Summer Bootcamp".to_string(),
+            "SBC".to_string(),
+            URI.to_string(),
         )?;
 
         Ok(())

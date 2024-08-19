@@ -18,4 +18,8 @@ pub mod summer_bootcamp_anchor_spltoken_stake {
     pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
         ctx.accounts.handler(ctx.bumps)
     }
+
+    pub fn create_pool(ctx: Context<CreatePool>, allocation: u64) -> Result<()> {
+        ctx.accounts.create_pool(allocation, ctx.bumps)
+    }
 }
