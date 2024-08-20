@@ -8,4 +8,5 @@ pub struct Pool {
     pub reward_mint: Pubkey,
     pub reward_ata: Pubkey,
     pub allocation: u64,
+    pub reward_per_second: u64,
 }

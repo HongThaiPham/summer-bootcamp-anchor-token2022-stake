@@ -19,7 +19,16 @@ pub mod summer_bootcamp_anchor_spltoken_stake {
         ctx.accounts.handler(ctx.bumps)
     }
 
-    pub fn create_pool(ctx: Context<CreatePool>, allocation: u64) -> Result<()> {
-        ctx.accounts.create_pool(allocation, ctx.bumps)
+    pub fn create_pool(
+        ctx: Context<CreatePool>,
+        allocation: u64,
+        reward_per_second: u64,
+    ) -> Result<()> {
+        ctx.accounts
+            .handler(allocation, reward_per_second, ctx.bumps)
+    }
+
+    pub fn stake(ctx: Context<Stake>, amount: u64) -> Result<()> {
+        ctx.accounts.handler(amount)
     }
 }

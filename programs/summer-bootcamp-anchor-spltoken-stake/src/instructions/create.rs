@@ -3,7 +3,7 @@ use anchor_spl::{
     associated_token::AssociatedToken, token_interface::{Mint, TokenAccount, TokenInterface, mint_to, MintTo}
 };
 
-use crate::{Config, Pool, CONFIG_SEED, POOL_SEED};
+use crate::{error::MyErrorCode, Config, Pool, CONFIG_SEED, POOL_SEED};
 
 #[derive(Accounts)]
 pub struct CreatePool<'info> {
@@ -52,14 +52,16 @@ pub struct CreatePool<'info> {
 }
 
 impl<'info> CreatePool<'info> {
-    pub fn create_pool(&mut self, allocation: u64, bumps: CreatePoolBumps) -> Result<()> {
-        
+    pub fn handler(&mut self, allocation: u64,reward_per_second:u64, bumps: CreatePoolBumps) -> Result<()> {
+        require_gt!(allocation, 0, MyErrorCode::AllocationMustBeGreaterThanZero);
+        require_gt!(reward_per_second, 0, MyErrorCode::RewardPerSecondMustBeGreaterThanZero);
         self.pool.set_inner(Pool { 
             authority: self.signer.to_account_info().key(), 
             stake_mint: self.stake_mint.to_account_info().key(), 
             reward_mint: self.reward_mint.to_account_info().key(), 
             reward_ata: self.reward_ata.to_account_info().key() , 
-            allocation 
+            allocation ,
+            reward_per_second
         });
         self.mint_reward(allocation, bumps)?;
         Ok(())
