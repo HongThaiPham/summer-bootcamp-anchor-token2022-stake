@@ -31,4 +31,8 @@ pub mod summer_bootcamp_anchor_spltoken_stake {
     pub fn stake(ctx: Context<Stake>, amount: u64) -> Result<()> {
         ctx.accounts.handler(amount)
     }
+
+    pub fn unstake(ctx: Context<Unstake>, amount: u64) -> Result<()> {
+        ctx.accounts.handler(amount, &ctx.bumps)
+    }
 }

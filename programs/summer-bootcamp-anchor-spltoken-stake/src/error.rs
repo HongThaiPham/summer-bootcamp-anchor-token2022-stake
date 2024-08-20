@@ -6,4 +6,7 @@ pub enum MyErrorCode {
     InvalidStakeMintAccount,
     AllocationMustBeGreaterThanZero,
     RewardPerSecondMustBeGreaterThanZero,
+    InvalidUnstakeAmount,
+    InsufficientStakeAmount,
+    Overflow,
 }

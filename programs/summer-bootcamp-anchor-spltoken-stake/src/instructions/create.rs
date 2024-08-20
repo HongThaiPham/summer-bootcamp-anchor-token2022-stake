@@ -61,7 +61,7 @@ impl<'info> CreatePool<'info> {
             reward_mint: self.reward_mint.to_account_info().key(), 
             reward_ata: self.reward_ata.to_account_info().key() , 
             allocation ,
-            reward_per_second
+            reward_per_slot: reward_per_second
         });
         self.mint_reward(allocation, bumps)?;
         Ok(())
