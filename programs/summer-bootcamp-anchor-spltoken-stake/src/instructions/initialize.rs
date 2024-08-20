@@ -36,8 +36,10 @@ pub struct Initialize<'info> {
 
 impl<'info> Initialize<'info> {
     pub fn handler(&mut self, bumps: InitializeBumps) -> Result<()> {
-        self.config.authority = self.signer.to_account_info().key();
-        self.config.reward_mint = self.mint.to_account_info().key();
+        self.config.set_inner(Config {
+            authority: self.signer.to_account_info().key(),
+            reward_mint: self.mint.to_account_info().key(),
+        });
         self.create_metadata(bumps)?;
         Ok(())
     }

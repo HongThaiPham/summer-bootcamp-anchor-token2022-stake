@@ -24,6 +24,7 @@ describe("summer-bootcamp-anchor-spltoken-stake", () => {
     program.programId
   );
   const rewardMintKeypair = anchor.web3.Keypair.generate();
+
   it("Is configured", async () => {
     // Add your test here.
     const tx = await program.methods
@@ -41,22 +42,8 @@ describe("summer-bootcamp-anchor-spltoken-stake", () => {
   });
 
   it("Should create a new pool", async () => {
-    const [pool] = anchor.web3.PublicKey.findProgramAddressSync(
-      [Buffer.from("pool"), rewardMintKeypair.publicKey.toBuffer()],
-      program.programId
-    );
-    console.log("Pool", pool.toBase58());
-    const rewardAta = getAssociatedTokenAddressSync(
-      rewardMintKeypair.publicKey,
-      pool,
-      true,
-      TOKEN_2022_PROGRAM_ID
-    );
-
-    console.log("Reward Ata", rewardAta.toBase58());
-
     const tx = await program.methods
-      .createPool(new anchor.BN(100000000))
+      .createPool(new anchor.BN(1000_000_000_000))
       .accounts({
         signer: provider.publicKey,
         rewardTokenProgram: TOKEN_2022_PROGRAM_ID,

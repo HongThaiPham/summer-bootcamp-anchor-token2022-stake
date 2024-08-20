@@ -31,13 +31,14 @@ pub struct CreatePool<'info> {
     )]
     pub pool: Account<'info, Pool>,
     #[account(
+        mut,
         address = config.reward_mint,
         mint::token_program = reward_token_program,
         mint::authority = config,
     )]
     pub reward_mint: Box<InterfaceAccount<'info, Mint>>,
     #[account(
-        init_if_needed,
+        init,
         payer = signer,
         associated_token::mint = reward_mint,
         associated_token::authority = pool,
