@@ -1,0 +1,6 @@
+{
+  "name": "Comsumer Role NFT",
+  "symbol": "CONSUMER",
+  "description": "This NFT verify that user can consume token",
+  "image": "https://raw.githubusercontent.com/HongThaiPham/summer-bootcamp-anchor-token2022-stake/main/app/assets/consumer.jpg"
+}

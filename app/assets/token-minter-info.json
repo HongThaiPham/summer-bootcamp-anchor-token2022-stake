@@ -1,0 +1,6 @@
+{
+  "name": "Minter Role NFT",
+  "symbol": "MINTER",
+  "description": "This NFT verify that user can mint token",
+  "image": "https://raw.githubusercontent.com/HongThaiPham/summer-bootcamp-anchor-token2022-stake/main/app/assets/minter.jpg"
+}
